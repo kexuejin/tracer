@@ -8,7 +8,9 @@ public class Trace {
 	
 	private static Map<Object, ArrayList<TraceInfo>> history = new HashMap<Object, ArrayList<TraceInfo>>();
 	
-	public static void addInfo(Object object, TraceInfo info) {
+	@Untraceable
+	public static void addInfo(Object object, String direction, String method, String filename, int lineNumber) {
+		TraceInfo info = new TraceInfo(direction, method, filename, lineNumber);
 		if (history.containsKey(object)) {
 			history.get(object).add(info);
 		} else {
@@ -18,6 +20,7 @@ public class Trace {
 		}
 	}
 
+	@Untraceable
 	public static void print(Object object) {
 		if (!history.containsKey(object)) {
 			System.err.println("Tracing for " + object + " is nonexistent!");
@@ -26,7 +29,7 @@ public class Trace {
 			ArrayList<TraceInfo> info = history.get(object);
 			
 			for (TraceInfo i : info) {
-				System.err.println(i);
+				System.err.println("  " + i);
 			}
 		}
 	}

@@ -3,11 +3,13 @@ package ist.meic.pa;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.Translator;
 import javassist.expr.ExprEditor;
-import javassist.expr.FieldAccess;
+import javassist.expr.MethodCall;
+import javassist.expr.NewExpr;
 
 public class TraceableTranslator implements Translator {
 
@@ -28,16 +30,46 @@ public class TraceableTranslator implements Translator {
 	}
 	
 	private void makeTraceable(CtClass ctClass) throws NotFoundException, CannotCompileException {
-		final String template = 
-				"TraceInfo info = new TraceInfo(\"%s\", \"%s\", \"%s\", %d);" +
-				"Trace.addInfo($X, info);";
-		
+		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
 		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
-//			ctMethod.instrument(new ExprEditor() {
-//				public void edit(FieldAccess fa) throws CannotCompileException {
-//					
-//				}
-//			});
+			if (!ctMethod.hasAnnotation(Untraceable.class)) {
+				ctMethod.instrument(new ExprEditor() {
+					public void edit(MethodCall mc) throws CannotCompileException {
+						int args;
+						CtMethod mth;
+						try {
+							mth = mc.getMethod();
+							args = mth.getParameterTypes().length;
+							String addedInfo = "";
+							for (int i = 0; i < args; i++) {
+								addedInfo += String.format(template, i + 1, "->", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+							}
+							addedInfo += "$_ = $proceed($$);";
+							if (!mth.getReturnType().getName().equals("void")) {
+								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+							}
+							System.out.println("ADDED INFO: " + addedInfo);
+							mc.replace(addedInfo);
+						} catch (NotFoundException e) {
+							e.printStackTrace();
+						} 
+
+					}
+
+					public void edit(NewExpr ne) throws CannotCompileException {
+						CtConstructor cons;
+						try {
+							cons = ne.getConstructor();
+							String addedInfo = "$_ = $proceed($$);" +
+									String.format(template, "_", "<-", cons.getLongName(), ne.getFileName(), ne.getLineNumber());
+							ne.replace(addedInfo);
+						} catch (NotFoundException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+
 		}
 	}
 
