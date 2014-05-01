@@ -12,5 +12,21 @@ public class ObjectWrapper {
 	public Object getObj() {
 		return obj;
 	}
+	
+	@Untraceable
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof ObjectWrapper){
+			ObjectWrapper o = (ObjectWrapper) obj;
+			return o.getObj() == this.obj;
+		}
+		return false;
+	}
+	
+	@Untraceable
+	@Override
+	public int hashCode() {
+		return obj.hashCode();
+	}
 
 }
