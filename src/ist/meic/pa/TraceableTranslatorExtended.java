@@ -7,7 +7,10 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.Translator;
+import javassist.expr.Cast;
 import javassist.expr.ExprEditor;
+import javassist.expr.FieldAccess;
+import javassist.expr.Handler;
 import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
 
@@ -33,7 +36,22 @@ public class TraceableTranslatorExtended implements Translator {
 		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
 		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
 			if (!ctMethod.hasAnnotation(Untraceable.class)) {
-				
+				ctMethod.instrument(new ExprEditor() {
+					public void edit(Handler h) throws CannotCompileException {
+						
+
+					}
+					
+					public void edit(Cast h) throws CannotCompileException {
+						
+
+					}
+					
+					public void edit(FieldAccess h) throws CannotCompileException {
+						
+
+					}
+				});
 			}
 
 		}
