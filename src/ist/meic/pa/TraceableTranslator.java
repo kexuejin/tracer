@@ -48,7 +48,6 @@ public class TraceableTranslator implements Translator {
 							if (!mth.getReturnType().getName().equals("void")) {
 								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
 							}
-							System.out.println("ADDED INFO: " + addedInfo);
 							mc.replace(addedInfo);
 						} catch (NotFoundException e) {
 							e.printStackTrace();
