@@ -36,10 +36,43 @@ public class TraceableTranslatorExtended implements Translator {
 		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
 		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
 			if (!ctMethod.hasAnnotation(Untraceable.class)) {
+				final String methodName = ctMethod.getLongName();
 				ctMethod.instrument(new ExprEditor() {
-					public void edit(Handler h) throws CannotCompileException {
-						
+					public void edit(MethodCall mc) throws CannotCompileException {
+						int args;
+						CtMethod mth;
+						try {
+							mth = mc.getMethod();
+							args = mth.getParameterTypes().length;
+							String addedInfo = "";
+							for (int i = 0; i < args; i++) {
+								addedInfo += String.format(template, i + 1, "->", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+							}
+							addedInfo += "$_ = $proceed($$);";
+							if (!mth.getReturnType().getName().equals("void")) {
+								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+							}
+							mc.replace(addedInfo);
+						} catch (NotFoundException e) {
+							e.printStackTrace();
+						} 
 
+					}
+					
+					public void edit(NewExpr ne) throws CannotCompileException {
+						CtConstructor cons;
+						try {
+							cons = ne.getConstructor();
+							String addedInfo = "$_ = $proceed($$);" +
+									String.format(template, "_", "<-", cons.getLongName(), ne.getFileName(), ne.getLineNumber());
+							ne.replace(addedInfo);
+						} catch (NotFoundException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					public void edit(Handler h) throws CannotCompileException {
+						h.insertBefore(String.format(template, "1", "=>", methodName, h.getFileName(), h.getLineNumber()));
 					}
 					
 					public void edit(Cast h) throws CannotCompileException {

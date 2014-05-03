@@ -14,6 +14,6 @@ public class TraceVMExtended {
 //		String[] restArgs = new String[args.length - 1];
 //		System.arraycopy(args, 1, restArgs, 0, restArgs.length);
 //		classLoader.run(args[0], restArgs);
-		classLoader.run("ist.meic.pa.Test", null);
+		classLoader.run("ist.meic.pa.TestExtended", null);
 	}
 }
