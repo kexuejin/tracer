@@ -53,6 +53,7 @@ public class TraceableTranslatorExtended implements Translator {
 								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
 							}
 							mc.replace(addedInfo);
+							
 						} catch (NotFoundException e) {
 							e.printStackTrace();
 						} 
@@ -77,12 +78,18 @@ public class TraceableTranslatorExtended implements Translator {
 					
 					public void edit(Cast h) throws CannotCompileException {
 						
-
+						
 					}
 					
 					public void edit(FieldAccess h) throws CannotCompileException {
+						if(h.isReader()){
+							String addedInfo = "$_ = $proceed($$);" + String.format(template, "_", "<-", h.getFieldName(), h.getFileName(), h.getLineNumber());
+							h.replace(addedInfo);
+						}else if(h.isWriter()){
+							String addedInfo = "$_ = $proceed($$);" + String.format(template, "1", "->", h.getFieldName(), h.getFileName(), h.getLineNumber());
+							h.replace(addedInfo);
+						}
 						
-
 					}
 				});
 			}

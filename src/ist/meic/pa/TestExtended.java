@@ -1,9 +1,20 @@
 package ist.meic.pa;
 
 public class TestExtended {
+	
+	String s = new String("Hello World");
 
 	public TestExtended() {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public String giveMeString(){
+		return s;
+	}
+	
+	public String modifyString(){
+		this.s = new String("Goodbye Cruel World!");
+		return s;
 	}
 	
 	public Object handle() {
@@ -32,10 +43,14 @@ public class TestExtended {
 	
 	public void test() {
 		Trace.print(handle());
+		Trace.print(giveMeString());
+		Trace.print(modifyString());
 	}
 
 	public static void main(String[] args) {
 		(new TestExtended()).test();
+
+		
 
 	}
 
