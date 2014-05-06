@@ -21,19 +21,20 @@ public class TraceableTranslatorExtended implements Translator {
 
 	@Override
 	public void onLoad(ClassPool pool, String className) throws NotFoundException,
-			CannotCompileException {
+	CannotCompileException {
 		CtClass ctClass = pool.get(className);
 		makeTraceable(ctClass);
 	}
 
 	@Override
 	public void start(ClassPool pool) throws NotFoundException,
-			CannotCompileException {
+	CannotCompileException {
 
 	}
-	
+
 	private void makeTraceable(CtClass ctClass) throws NotFoundException, CannotCompileException {
 		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
+		final String castTemplate = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"(\" + $_.getClass().getName() + \")\", \"%s\", %d);";
 		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
 			if (!ctMethod.hasAnnotation(Untraceable.class)) {
 				final String methodName = ctMethod.getLongName();
@@ -53,13 +54,13 @@ public class TraceableTranslatorExtended implements Translator {
 								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
 							}
 							mc.replace(addedInfo);
-							
+
 						} catch (NotFoundException e) {
 							e.printStackTrace();
 						} 
 
 					}
-					
+
 					public void edit(NewExpr ne) throws CannotCompileException {
 						CtConstructor cons;
 						try {
@@ -71,16 +72,17 @@ public class TraceableTranslatorExtended implements Translator {
 							e.printStackTrace();
 						}
 					}
-					
+
 					public void edit(Handler h) throws CannotCompileException {
 						h.insertBefore(String.format(template, "1", "=>", methodName, h.getFileName(), h.getLineNumber()));
 					}
-					
+
 					public void edit(Cast h) throws CannotCompileException {
-						
-						
+						String addedInfo;
+						addedInfo = "$_ = $proceed($$);" + String.format(castTemplate, "_", "()", h.getFileName(), h.getLineNumber());
+						h.replace(addedInfo);
 					}
-					
+
 					public void edit(FieldAccess h) throws CannotCompileException {
 						if(h.isReader()){
 							String addedInfo = "$_ = $proceed($$);" + String.format(template, "_", "<-", h.getFieldName(), h.getFileName(), h.getLineNumber());
@@ -89,7 +91,7 @@ public class TraceableTranslatorExtended implements Translator {
 							String addedInfo = "$_ = $proceed($$);" + String.format(template, "1", "->", h.getFieldName(), h.getFileName(), h.getLineNumber());
 							h.replace(addedInfo);
 						}
-						
+
 					}
 				});
 			}

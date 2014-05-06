@@ -3,9 +3,8 @@ package ist.meic.pa;
 public class TestExtended {
 	
 	String s = new String("Hello World");
-
+	
 	public TestExtended() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public String giveMeString(){
@@ -41,10 +40,16 @@ public class TestExtended {
 		}
 	}
 	
+	public Object cast() {
+		Object o = "lol";
+		return (String) o;
+	}
+	
 	public void test() {
 		Trace.print(handle());
 		Trace.print(giveMeString());
 		Trace.print(modifyString());
+		Trace.print(cast());
 	}
 
 	public static void main(String[] args) {
