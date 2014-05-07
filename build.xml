@@ -1,47 +1,33 @@
-<project name="tracer" default="dist" basedir=".">
-    <description>
-        simple example build file
-    </description>
-  <!-- set global properties for this build -->
-  <property name="src" location="src"/>
-  <property name="build" location="classes"/>
-  <property name="dist"  location="dist"/>
-  <property name="package" value="ist.meic.pa"/>
-  <property name="main" value="${package}.TraceVM"/>
-
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
-  </target>
-
-  <target name="compile" depends="init"
-        description="compile the source " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="javassist.jar"/>
-  </target>
-  
-  <target name="run" depends="compile"
-        description="run the program " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <java classname="${main}" classpath="${build}" />
-  </target>
-  
-  <target name="dist" depends="compile"
-        description="generate the distribution" >
-
-    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-  	<delete file="tracer.jar"/>
-    <jar destfile="tracer.jar">
-    	<fileset dir="${build}" />
-    	<zipfileset includes="**/*.class" src="javassist.jar" />
-    </jar>
-  </target>
-
-  <target name="clean"
-        description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-  </target>
+<project name="Tracer" basedir="." default="create-jar">
+	<property name="src.dir" location="src" />
+	<property name="classes.dir" location="classes" />
+	<property name="lib.dir" location="lib" />
+	<property name="jar.file" location="tracer.jar" />
+	<path id="project.classpath">
+		<pathelement location="${classes.dir}" />
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	<target name="init">
+		<mkdir dir="${classes.dir}" />
+	</target>
+	<target name="clean">
+		<delete dir="${classes.dir}" />
+		<delete file="${jar.file}" />
+	</target>
+	<target name="compile" depends="clean,init">
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" debug="true"
+			includeantruntime="false">
+			<classpath>
+				<path refid="project.classpath" />
+			</classpath>
+		</javac>
+	</target>
+	<target name="create-jar" depends="compile">
+		<jar destfile="${jar.file}">
+			<fileset dir="${classes.dir}" />
+			<fileset dir="${src.dir}" />
+		</jar>
+	</target>
 </project>
