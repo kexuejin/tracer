@@ -45,11 +45,17 @@ public class TestExtended {
 		return (String) o;
 	}
 	
+	public Object aniCast() {
+		Object a = new Dog();
+		return (Animal) a;
+	}
+	
 	public void test() {
 		Trace.print(handle());
 		Trace.print(giveMeString());
 		Trace.print(modifyString());
 		Trace.print(cast());
+		Trace.print(aniCast());
 	}
 
 	public static void main(String[] args) {

@@ -34,10 +34,9 @@ public class TraceableTranslatorExtended implements Translator {
 
 	private void makeTraceable(CtClass ctClass) throws NotFoundException, CannotCompileException {
 		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
-		final String castTemplate = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"(\" + $_.getClass().getName() + \")\", \"%s\", %d);";
+		final String castTemplate = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"(%s) cast in %s\", \"%s\", %d);";
 		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
 			if (!ctMethod.hasAnnotation(Untraceable.class)) {
-				final String methodName = ctMethod.getLongName();
 				ctMethod.instrument(new ExprEditor() {
 					public void edit(MethodCall mc) throws CannotCompileException {
 						int args;
@@ -74,21 +73,26 @@ public class TraceableTranslatorExtended implements Translator {
 					}
 
 					public void edit(Handler h) throws CannotCompileException {
-						h.insertBefore(String.format(template, "1", "=>", methodName, h.getFileName(), h.getLineNumber()));
+						h.insertBefore(String.format(template, "1", "=>", h.where().getLongName(), h.getFileName(), h.getLineNumber()));
 					}
 
 					public void edit(Cast h) throws CannotCompileException {
 						String addedInfo;
-						addedInfo = "$_ = $proceed($$);" + String.format(castTemplate, "_", "()", h.getFileName(), h.getLineNumber());
-						h.replace(addedInfo);
+						try {
+							addedInfo = "$_ = $proceed($$);" + String.format(castTemplate, "_", "()", h.getType().getName(), h.where().getLongName(), h.getFileName(), h.getLineNumber());
+							h.replace(addedInfo);
+						} catch (NotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 
 					public void edit(FieldAccess h) throws CannotCompileException {
 						if(h.isReader()){
-							String addedInfo = "$_ = $proceed($$);" + String.format(template, "_", "<-", h.getFieldName(), h.getFileName(), h.getLineNumber());
+							String addedInfo = "$_ = $proceed($$);" + String.format(template, "_", "<.", h.getFieldName() + " in " + h.where().getLongName(), h.getFileName(), h.getLineNumber());
 							h.replace(addedInfo);
 						}else if(h.isWriter()){
-							String addedInfo = "$_ = $proceed($$);" + String.format(template, "1", "->", h.getFieldName(), h.getFileName(), h.getLineNumber());
+							String addedInfo = "$_ = $proceed($$);" + String.format(template, "1", ".>", h.getFieldName() + " in " + h.where().getLongName(), h.getFileName(), h.getLineNumber());
 							h.replace(addedInfo);
 						}
 

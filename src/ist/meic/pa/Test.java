@@ -7,7 +7,9 @@ public class Test {
 	}
 	
 	public Object foo() {
-		return new String("Foo");
+		String s = new String("Foo");
+		
+		return identity(s);
 	}
 	
 	public Object bar() {
