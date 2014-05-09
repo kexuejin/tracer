@@ -2,6 +2,7 @@ package ist.meic.pa;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
+import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
@@ -31,44 +32,62 @@ public class TraceableTranslator implements Translator {
 	
 	private void makeTraceable(CtClass ctClass) throws NotFoundException, CannotCompileException {
 		final String template = "ist.meic.pa.Trace.addInfo($%s, \"%s\", \"%s\", \"%s\", %d);";
-		for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
-			if (!ctMethod.hasAnnotation(Untraceable.class)) {
-				ctMethod.instrument(new ExprEditor() {
+		for (CtBehavior bv : ctClass.getDeclaredBehaviors()) {
+			if (!bv.hasAnnotation(Untraceable.class)) {
+				bv.instrument(new ExprEditor() {
 					public void edit(MethodCall mc) throws CannotCompileException {
-						int args;
-						CtMethod mth;
-						try {
-							mth = mc.getMethod();
-							args = mth.getParameterTypes().length;
-							String addedInfo = "";
-							for (int i = 0; i < args; i++) {
-								addedInfo += String.format(template, i + 1, "->", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+						if (!mc.getClassName().split("\\.")[0].equals("java")) {
+							try {
+								CtMethod mth = mc.getMethod();
+								int args = mth.getParameterTypes().length;
+								String addedInfo = "";
+								addedInfo += addParametersToTracer(template,
+										mc, mth, args);
+								addedInfo += addReturnedToTrace(template, mc,
+										mth);
+								mc.replace(addedInfo);
+							} catch (NotFoundException e) {
+								e.printStackTrace();
 							}
-							addedInfo += "$_ = $proceed($$);";
-							if (!mth.getReturnType().getName().equals("void")) {
-								addedInfo += String.format(template, "_", "<-", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
-							}
-							mc.replace(addedInfo);
-						} catch (NotFoundException e) {
-							e.printStackTrace();
-						} 
+						}
+					}
 
+					private String addReturnedToTrace(final String template,
+							MethodCall mc, CtMethod mth)
+							throws NotFoundException {
+						String addedInfo = "";
+						if (!mth.getReturnType().getName().equals("void")) {
+							addedInfo = String.format(template, "_", "<-",
+									mth.getLongName(), mc.getFileName(),
+									mc.getLineNumber());
+						}
+						return addedInfo;
+					}
+
+					private String addParametersToTracer(final String template, MethodCall mc, CtMethod mth, int args) {
+						String addedInfo = "";
+						for (int i = 0; i < args; i++) {
+							addedInfo += String.format(template, i + 1, "->", mth.getLongName(), mc.getFileName(), mc.getLineNumber());
+						}
+						addedInfo += "$_ = $proceed($$);";
+						return addedInfo;
 					}
 
 					public void edit(NewExpr ne) throws CannotCompileException {
-						CtConstructor cons;
-						try {
-							cons = ne.getConstructor();
-							String addedInfo = "$_ = $proceed($$);" +
-									String.format(template, "_", "<-", cons.getLongName(), ne.getFileName(), ne.getLineNumber());
-							ne.replace(addedInfo);
-						} catch (NotFoundException e) {
-							e.printStackTrace();
+						if (!ne.getEnclosingClass().getName().equals("ist.meic.pa.Trace")) {
+							try {
+								CtConstructor cons = ne.getConstructor();
+								String addedInfo = "$_ = $proceed($$);" + String.format(template, "_", "<-", cons.getLongName(), ne.getFileName(), ne.getLineNumber());
+								ne.replace(addedInfo);
+							} catch (NotFoundException e) {
+								e.printStackTrace();
+							}
 						}
+
 					}
 				});
-			}
 
+			}
 		}
 	}
 

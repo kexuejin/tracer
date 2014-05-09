@@ -1,6 +1,9 @@
 package ist.meic.pa;
 
 public class Test {
+	
+	public Object field = bar();
+	public Object a = new Animal();
 
 	public Test() {
 		// TODO Auto-generated constructor stub
@@ -8,7 +11,6 @@ public class Test {
 	
 	public Object foo() {
 		String s = new String("Foo");
-		
 		return identity(s);
 	}
 	
@@ -25,6 +27,7 @@ public class Test {
 	}
 	
 	public void test() {
+		Trace.print(a);
 		Trace.print(foo());
 		Trace.print(bar());
 		Trace.print(baz());
