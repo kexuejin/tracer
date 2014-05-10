@@ -6,7 +6,6 @@ public class Test {
 	public Object a = new Animal();
 
 	public Test() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public Object foo() {
@@ -31,6 +30,11 @@ public class Test {
 		Trace.print(foo());
 		Trace.print(bar());
 		Trace.print(baz());
+		Trace.print(giveMeAnInt());
+	}
+	
+	public int giveMeAnInt(){
+		return 1;
 	}
 
 	public static void main(String[] args) {

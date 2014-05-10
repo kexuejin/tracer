@@ -1,5 +1,5 @@
 package ist.meic.pa;
-
+@Untraceable
 public class TraceInfo {
 
 	private String direction;
@@ -18,7 +18,7 @@ public class TraceInfo {
 		this.lineNumber = lineNumber;
 	}
 	
-	@Untraceable
+	
 	public String toString() {
 		return this.direction + " " + this.method + " on " + this.filename + ":" + lineNumber;
 	}

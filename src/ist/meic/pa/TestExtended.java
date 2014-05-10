@@ -3,6 +3,7 @@ package ist.meic.pa;
 public class TestExtended {
 	
 	String s = new String("Hello World");
+	int n = 3;
 	
 	public TestExtended() {
 	}
@@ -50,19 +51,22 @@ public class TestExtended {
 		return (Animal) a;
 	}
 	
+	public int giveMeAnInt(){
+		return 1;
+	}
+	
 	public void test() {
 		Trace.print(handle());
 		Trace.print(giveMeString());
 		Trace.print(modifyString());
 		Trace.print(cast());
 		Trace.print(aniCast());
+		Trace.print(giveMeAnInt());
+		Trace.print(n);
 	}
 
 	public static void main(String[] args) {
 		(new TestExtended()).test();
-
-		
-
 	}
 
 }
