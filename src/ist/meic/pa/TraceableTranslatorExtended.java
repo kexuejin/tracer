@@ -41,7 +41,6 @@ public class TraceableTranslatorExtended implements Translator {
 			for (CtBehavior bv : ctClass.getDeclaredBehaviors()) {
 				bv.instrument(new ExprEditor() {
 					public void edit(MethodCall mc) throws CannotCompileException {
-						if (!isANativeMethod(mc)) {
 							try {
 								CtMethod mth = mc.getMethod();
 								String addedInfo = "";
@@ -53,11 +52,6 @@ public class TraceableTranslatorExtended implements Translator {
 							} catch (NotFoundException e) {
 								e.printStackTrace();
 							}
-						}
-					}
-
-					private boolean isANativeMethod(MethodCall mc) {
-						return mc.getClassName().split("\\.")[0].equals("java");
 					}
 
 					private String addReturnedToTrace(final String template,
