@@ -11,9 +11,8 @@ public class TraceVMExtended {
 		ClassPool p = ClassPool.getDefault();
 		Loader classLoader = new Loader();
 		classLoader.addTranslator(p, t);
-//		String[] restArgs = new String[args.length - 1];
-//		System.arraycopy(args, 1, restArgs, 0, restArgs.length);
-//		classLoader.run(args[0], restArgs);
-		classLoader.run("ist.meic.pa.TestExtended", null);
+		String[] restArgs = new String[args.length - 1];
+		System.arraycopy(args, 1, restArgs, 0, restArgs.length);
+		classLoader.run(args[0], restArgs);
 	}
 }

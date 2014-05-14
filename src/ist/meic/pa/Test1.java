@@ -1,11 +1,11 @@
 package ist.meic.pa;
 
-public class Test {
+public class Test1 {
 	
 	public Object field = bar();
 	public Object a = new Animal();
 
-	public Test() {
+	public Test1() {
 	}
 	
 	public Object foo() {
@@ -38,7 +38,7 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-		(new Test()).test();
+		(new Test1()).test();
 
 	}
 

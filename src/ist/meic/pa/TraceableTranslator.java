@@ -38,7 +38,6 @@ public class TraceableTranslator implements Translator {
 				bv.instrument(new ExprEditor() {
 					public void edit(MethodCall mc)
 							throws CannotCompileException {
-						if (!mc.getClassName().split("\\.")[0].equals("java")) {
 							try {
 								CtMethod mth = mc.getMethod();
 								String addedInfo = "";
@@ -48,7 +47,6 @@ public class TraceableTranslator implements Translator {
 							} catch (NotFoundException e) {
 								e.printStackTrace();
 							}
-						}
 					}
 
 					private String addReturnedToTrace(final String template,
